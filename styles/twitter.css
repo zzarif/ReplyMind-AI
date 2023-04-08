@@ -1,0 +1,22 @@
+@font-face {
+    font-family: "Ubuntu";
+    src: local("Ubuntu"), url(./fonts/ubuntu_regular.ttf) format("truetype");
+}
+  
+.twt-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.twt-btn {
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-size: 1rem;
+    color: white;
+    background-color: transparent;
+    border: 0.1rem solid orange;
+    border-radius: 1rem;
+    padding: 0.1rem 0.5rem;
+    margin-right: 0.8rem;
+}

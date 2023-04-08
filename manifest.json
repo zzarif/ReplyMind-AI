@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "ReplyMind AI",
+  "description": "A chrome extension for AI assistance in comment writing",
+  "version": "0.1.0",
+  "icons": {
+      "16": "./images/logo-16x16.png"
+  },
+  "background": {
+      "service_worker": "./background.js"
+  },
+  "action": {
+      "default_title": "ReplyMind",
+      "default_popup": "./ui/popup.html",
+      "default_icons": {
+          "16": "./images/logo-16x16.png"
+      }
+  },
+  "options_page": "./ui/options.html",
+  "permissions": [
+      "activeTab",
+      "tabs",
+      "storage",
+      "scripting"
+  ],
+  "host_permissions": [
+      "https://www.google.com/*",
+      "https://www.linkedin.com/feed",
+      "https://twitter.com/compose/tweet",
+      "https://www.producthunt.com/posts/*"
+  ]
+}
