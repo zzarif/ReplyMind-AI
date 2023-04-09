@@ -1,0 +1,24 @@
+@font-face {
+    font-family: "Ubuntu";
+    src: local("Ubuntu"), url(./fonts/ubuntu_regular.ttf) format("truetype");
+}
+  
+.replymind-linkedin-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.replymind-linkedin-btn {
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: darkorchid;
+    background-color: transparent;
+    border: 0.1rem solid darkorchid;
+    border-radius: 1.4rem;
+    padding: 0.2rem 0.6rem;
+    margin-right: 0.8rem;
+}

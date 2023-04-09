@@ -5,10 +5,12 @@
 setTimeout(() => {
     
     /**
-     * producthunt comment container
+     * producthunt root comment container
      * render replymind buttons inside
      */
-    const root = document.querySelector("div.flex.direction-column.flex-1");  
+    const root = document.querySelector(
+        "div.styles_container__0dgmN>div.flex.direction-column.flex-1"
+    );
 
     console.log("Generating replymind buttons...");
 
@@ -73,18 +75,16 @@ setTimeout(() => {
     container.appendChild(btnQuestion);
 
     /**
-     * check if toolbar exists
-     * insert the parent conatiner
+     * check if root exists
+     * insert the parent container
      * with buttons inside
      */
     if (root) {
-        root.insertBefore(
-            container,root.firstElementChild
-        );
+        root.appendChild(container);
     } else {
         alert("ReplyMind: Something went wrong");
     }
-}, 1300);
+}, 0);
 
 function showLoadingCursor () {
     const style = document.createElement("style");
@@ -104,22 +104,39 @@ function restoreCursor () {
  */
 async function generateComment (type) {
 
-    const caption = document.querySelector(
-        "div.css-901oao.r-1nao33i.r-37j5jr.r-a023e6.r-16dba41.r-rjixqe.r-bcqeeo.r-bnwqim.r-qvutc0"
+    const productTitle = document.querySelector(
+        "h1.color-darker-grey.fontSize-24.fontWeight-700.noOfLines-undefined.styles_title__vct6Q"
+    ).textContent;
+    const productSubtitle = document.querySelector(
+        "h2.color-lighter-grey.fontSize-24.fontWeight-300.noOfLines-undefined.styles_tagline___TmmA"
+    ).textContent;
+    const productDesc = document.querySelector(
+        "div.styles_htmlText__d6xln.color-darker-grey.fontSize-16.fontWeight-400"
     ).textContent;
 
-    // if caption is found
-    if (caption) {
+    const textarea = document.querySelector(
+        "textarea.rta__textarea.styles_textArea___VXHz"
+    );
+
+    console.log(productTitle);
+    console.log(productSubtitle);
+    console.log(productDesc);
+
+    
+    // if all the textcontents are found
+    if (productTitle&&productSubtitle&&productDesc) {
         showLoadingCursor();
 
-        await fetch("http://localhost:3000/", {
+        await fetch("http://localhost:3000/producthunt", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                type: type,
-                caption: caption
+                productTitle: productTitle,
+                productSubtitle: productSubtitle,
+                productDesc: productDesc,
+                type: type
             })
         })
         .then((res) => res.json())
@@ -127,11 +144,17 @@ async function generateComment (type) {
             console.log(data.comment);
 
             /**
-             * trigger event insert text
+             * trigger event input
              * with response text from server
-             * https://stackoverflow.com/a/72935050
+             * https://stackoverflow.com/a/50589655
              */
-            document.execCommand('insertText', false, data.comment);
+            textarea.focus();
+            const inputEvent = new Event("input", {
+                bubbles: true,
+                cancelable: true
+            });
+            textarea.value = data.comment;
+            textarea.dispatchEvent(inputEvent);
 
             restoreCursor();
         });
