@@ -1,144 +1,122 @@
 /**
- * set 1sec+ delay
- * for rendering buttons
+ * focus event listener
+ * to check if an element is focused
  */
-setTimeout(() => {
+document.addEventListener("focusin", (e) => {
+    const viewOnFocus = e.target;
+    const commentDivClass = "notranslate public-DraftEditor-content";
+
+    /**
+     * if the focused element is the comment box
+     * then generate ReplyMind buttons below
+     */
+    if (viewOnFocus.nodeName === "div" || 
+        viewOnFocus.className === commentDivClass) {
+        
+        const root = document.querySelector("[data-testid='toolBar']").parentNode;
+
+        if (root.firstElementChild.className !== "replymind-twt-container") {
+            const btnLike = getReplyMindButton(0, "  👍  "); // like
+            const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
+            const btnSupport = getReplyMindButton(2, "🫶Support"); // support
+            const btnJoke = getReplyMindButton(3, "🔥Joke"); //joke
+            const btnIdea = getReplyMindButton(4, "💡Idea"); // idea
+            const btnQuestion = getReplyMindButton(5, "❓Question"); // question
     
-    /**
-     * twitter toolbar container
-     * render replymind buttons inside
-     */
-    const root = document.querySelector(
-        "div.css-1dbjc4n.r-1iusvr4.r-16y2uox.r-1777fci.r-1h8ys4a.r-1bylmt5.r-13tjlyg.r-7qyjyx.r-1ftll1t>div>div.css-1dbjc4n"
-    );  
-
-    console.log("Generating replymind buttons...");
-
-    // like button
-    const btnLike = document.createElement("div");
-    btnLike.innerText = "👍";
-    btnLike.className = "twt-btn";
-    btnLike.addEventListener("click", () => {
-        generateComment(0);
-    });
-
-    // dislike button
-    const btnDislike = document.createElement("div");
-    btnDislike.innerText = "👎";
-    btnDislike.className = "twt-btn";
-    btnDislike.addEventListener("click", () => {
-        generateComment(1);
-    });
-
-    // support button
-    const btnSupport = document.createElement("div");
-    btnSupport.innerText = "🫶Support";
-    btnSupport.className = "twt-btn";
-    btnSupport.addEventListener("click", () => {
-        generateComment(2);
-    });
-
-    // joke button
-    const btnJoke = document.createElement("div");
-    btnJoke.innerText = "🔥Joke";
-    btnJoke.className = "twt-btn";
-    btnJoke.addEventListener("click", () => {
-        generateComment(3);
-    });
-
-    // idea button
-    const btnIdea = document.createElement("div");
-    btnIdea.innerText = "💡Idea";
-    btnIdea.className = "twt-btn";
-    btnIdea.addEventListener("click", () => {
-        generateComment(4);
-    });
-
-    // question button
-    const btnQuestion = document.createElement("div");
-    btnQuestion.innerText = "❓Question";
-    btnQuestion.className = "twt-btn";
-    btnQuestion.addEventListener("click", () => {
-        generateComment(5);
-    });
-
-    // button parent conatiner
-    const container = document.createElement("div");
-    container.className = "twt-container";
-
-    // insert buttons inside the parent container
-    container.appendChild(btnLike);
-    container.appendChild(btnDislike);
-    container.appendChild(btnSupport);
-    container.appendChild(btnJoke);
-    container.appendChild(btnIdea);
-    container.appendChild(btnQuestion);
-
-    /**
-     * check if toolbar exists
-     * insert the parent conatiner
-     * with buttons inside
-     */
-    if (root) {
-        root.insertBefore(
-            container,root.firstElementChild
-        );
-    } else {
-        alert("ReplyMind: Something went wrong");
+            // button parent conatiner
+            const container = document.createElement("div");
+            container.className = "replymind-twt-container";
+    
+            // insert buttons inside the parent container
+            container.appendChild(btnLike);
+            container.appendChild(btnDislike);
+            container.appendChild(btnSupport);
+            container.appendChild(btnJoke);
+            container.appendChild(btnIdea);
+            container.appendChild(btnQuestion);
+    
+            root.insertBefore(container, root.firstElementChild);
+        }
     }
-}, 1300);
+});
 
-function showLoadingCursor () {
-    const style = document.createElement("style");
-    style.id = "cursor_wait";
-    style.innerHTML = `* {cursor: wait;}`;
-    document.head.insertBefore(style, null);
-};
-  
-function restoreCursor () {
-    document.getElementById("cursor_wait").remove();
-};
 
 /**
- * function to fetch response from server
- * body: caption and comment reaction (clicked button)
- * @param "type": which button was clicked
+ * function to generate ReplyMind button
+ * @param "which" : which button (like/support/...)
+ * @param "text" : text of the button
+ * @returns generated button
  */
-async function generateComment (type) {
+function getReplyMindButton(which, text) { 
+    var rmButton = document.createElement("button");
+    rmButton.className = "replymind-twt-btn";
+    var txtNode = document.createTextNode(text);
+    rmButton.appendChild(txtNode);
+    rmButton.addEventListener("click", (e) => {
+        generateComment(e.target, which);
+    });
+    return rmButton;
+}
 
-    const caption = document.querySelector(
-        "div.css-901oao.r-1nao33i.r-37j5jr.r-a023e6.r-16dba41.r-rjixqe.r-bcqeeo.r-bnwqim.r-qvutc0"
-    ).textContent;
+/**
+ * function to get poster, caption
+ * send them to the server and
+ * fetch ChatGPT response
+ * @param "viewClicked" : clicked button
+ * @param "type" : type of reaction
+ */
+async function generateComment(viewClicked, type) {
+    console.log("Generating comment...");
 
-    // if caption is found
-    if (caption) {
-        showLoadingCursor();
+    disableButtons(viewClicked);
 
+    try {
+        // name of the poster
+        const poster = viewClicked.closest("div.css-1dbjc4n.r-iphfwy")
+                      .querySelector("[data-testid='User-Name']")
+                      .children[0].textContent.trim();
+        // caption of the post
+        const caption = viewClicked.closest("div.css-1dbjc4n.r-iphfwy")
+                        .querySelector("[data-testid='tweetText']")
+                        .textContent.trim();
+
+        // fetch ChatGPT response from server
         await fetch("http://localhost:3000/twitter", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                type: type,
-                caption: caption
+                poster: poster,
+                caption: caption,
+                type: type
             })
         })
         .then((res) => res.json())
         .then((data) => {
-            console.log(data.comment);
-
             /**
              * trigger event insert text
              * with response text from server
              * https://stackoverflow.com/a/72935050
              */
             document.execCommand('insertText', false, data.comment);
-
-            restoreCursor();
         });
+        
+    } catch(err) {
+        alert("REPLYMIND: Something went wrong!");
+    } finally {
+        restoreButtons(viewClicked);
     }
-    else {
-        alert("ReplyMind: Something went wrong");
-    }
+};
+
+function disableButtons (viewClicked) {
+  const pDiv = viewClicked.parentNode;
+  for (i=0; i<pDiv.childElementCount; i++) 
+      pDiv.children[i].disabled = true;
+};
+
+function restoreButtons (viewClicked) {
+  const pDiv = viewClicked.parentNode;
+  for (i=0; i<pDiv.childElementCount; i++) 
+      pDiv.children[i].disabled = false;
 };

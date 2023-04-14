@@ -8,11 +8,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // on load complete
     if(changeInfo.status === "complete") {
         /**
-         * on visit url: https://www.linkedin.com/feed/
+         * on visit url: https://www.linkedin.com/feed/*
          * inject foreground content style: linkedin.css
          * inject foreground content script: linkedin.js
          */
-        if(/^https:\/\/www\.linkedin\.com\/feed/.test(tab.url)) {
+        if(/^https:\/\/www\.linkedin\.com\/feed\/*/.test(tab.url)) {
             chrome.scripting.insertCSS({
                 target: { tabId: tabId },
                 files: ["./styles/linkedin.css"]
@@ -26,25 +26,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                 })
                 .then(() => {
                     console.log("injected linkedin script");
-                });
-            })
-            .catch(err => console.log(err));
-        }
-
-        else if(/^https:\/\/www\.google\.com/.test(tab.url)) {
-            chrome.scripting.insertCSS({
-                target: { tabId: tabId },
-                files: ["./styles/google.css"]
-            })
-            .then(() => {
-                console.log("injected google styles");
-
-                chrome.scripting.executeScript({
-                    target: { tabId: tabId },
-                    files: ["./scripts/google.js"]
-                })
-                .then(() => {
-                    console.log("injected google script");
                 });
             })
             .catch(err => console.log(err));

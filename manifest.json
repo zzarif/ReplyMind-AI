@@ -24,8 +24,7 @@
       "scripting"
   ],
   "host_permissions": [
-      "https://www.google.com/*",
-      "https://www.linkedin.com/feed",
+      "https://www.linkedin.com/feed/*",
       "https://twitter.com/compose/tweet",
       "https://www.producthunt.com/posts/*"
   ]

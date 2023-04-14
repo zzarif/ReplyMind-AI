@@ -1,24 +1,36 @@
-@font-face {
-    font-family: "Ubuntu";
-    src: local("Ubuntu"), url(./fonts/ubuntu_regular.ttf) format("truetype");
-}
-  
 .replymind-linkedin-container {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    margin-top: 1rem;
 }
 
 .replymind-linkedin-btn {
     cursor: pointer;
-    font-family: "Ubuntu";
+    font-family: "Quicksand", sans-serif;
+    font-weight: 300;
     font-size: 1.4rem;
-    font-weight: bold;
-    color: darkorchid;
+    color: #0A66C2;
     background-color: transparent;
-    border: 0.1rem solid darkorchid;
+    border: 0.1rem solid #0A66C2;
     border-radius: 1.4rem;
-    padding: 0.2rem 0.6rem;
+    padding: 0.1rem 0.6rem;
     margin-right: 0.8rem;
+    margin-top: 1rem;
+    transition: 0.3s;
+    white-space: pre-wrap;
+}
+
+.replymind-linkedin-btn:hover:enabled {
+    color: white;
+    background-color: #5CA4EA;
+}
+
+.replymind-linkedin-btn:active:enabled {
+    transform: scale(0.9);
+}
+
+.replymind-linkedin-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }

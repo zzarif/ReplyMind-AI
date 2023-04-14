@@ -22,16 +22,16 @@ app.use(express.urlencoded({ extended: false }));
  * Handle API POST request for twitter
  */
 app.post('/twitter', async (req, res) => {
-    const { type, caption } = req.body;
+  const { poster, caption, type } = req.body;
 
-    var prompt = `Caption: ${caption}\n\n${getReaction(type)}\n\nWrite a comment.`;
+    var prompt = `Poster/Commenter Name: ${poster}\nContent: ${caption}\n\n${getReaction(type)}\n\nWrite a comment/reply.`;
     console.log(prompt);
 
     const completion = await openai.createChatCompletion({
         messages: [
           {
             role: "system",
-            content: "You are a commenter who comments on Twitter posts. You will be given the caption of a Twitter post and the reaction of the comment.",
+            content: "You are a commenter/replier who comments/replies on Twitter posts/comments. You will be given the name of the poster/commenter, content of the Twitter post/comment and the reaction of comment/reply.",
           },
           {
             role: "user",
@@ -62,14 +62,14 @@ app.post('/twitter', async (req, res) => {
 app.post('/linkedin', async (req, res) => {
     const { poster, caption, type } = req.body;
 
-    var prompt = `Poster Name: ${poster}\nCaption: ${caption}\n\n${getReaction(type)}\n\nWrite a comment.`;
+    var prompt = `Poster/Commenter Name: ${poster}\nContent: ${caption}\n\n${getReaction(type)}\n\nWrite a comment/reply.`;
     console.log(prompt);
 
     const completion = await openai.createChatCompletion({
         messages: [
           {
             role: "system",
-            content: "You are a commenter who comments on LinkedIn posts. You will be given the name of the poster, caption of the LinkedIn post and the reaction of comment.",
+            content: "You are a commenter/replier who comments/replies on LinkedIn posts/comments. You will be given the name of the poster/commenter, content of the LinkedIn post/comment and the reaction of comment/reply.",
           },
           {
             role: "user",

@@ -1,22 +1,36 @@
-@font-face {
-    font-family: "Ubuntu";
-    src: local("Ubuntu"), url(./fonts/ubuntu_regular.ttf) format("truetype");
-}
-  
-.twt-container {
+.replymind-twt-container {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
 }
 
-.twt-btn {
+.replymind-twt-btn {
     cursor: pointer;
-    font-family: "Ubuntu";
-    font-size: 1rem;
-    color: white;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: #00acee;
     background-color: transparent;
-    border: 0.1rem solid orange;
-    border-radius: 1rem;
-    padding: 0.1rem 0.5rem;
-    margin-right: 0.8rem;
+    border: 0.1rem solid #00acee;
+    border-radius: 1.1rem;
+    padding: 0.1rem 0.6rem;
+    margin-right: 0.5rem;
+    margin-top: 0.6rem;
+    transition: 0.3s;
+    white-space: pre-wrap;
+}
+
+.replymind-twt-btn:hover:enabled {
+    color: white;
+    background-color: #00acee;
+}
+
+.replymind-twt-btn:active:enabled {
+    transform: scale(0.9);
+}
+
+.replymind-twt-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
