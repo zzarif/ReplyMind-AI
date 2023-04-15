@@ -81,7 +81,7 @@ async function generateComment(viewClicked, type) {
                         .textContent.trim();
 
         // fetch ChatGPT response from server
-        await fetch("http://localhost:3000/twitter", {
+        await fetch("https://replymind.cyclic.app/twitter", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

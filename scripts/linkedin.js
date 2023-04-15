@@ -107,7 +107,7 @@ async function generateComment(viewClicked, type) {
                                    .querySelector("div.ql-editor");
 
         // fetch ChatGPT response from server
-        await fetch("http://localhost:3000/linkedin", {
+        await fetch("https://replymind.cyclic.app/linkedin", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

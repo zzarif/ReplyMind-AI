@@ -12,7 +12,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
          * inject foreground content style: linkedin.css
          * inject foreground content script: linkedin.js
          */
-        if(/^https:\/\/www\.linkedin\.com\/feed\/*/.test(tab.url)) {
+        if(/^https:\/\/www\.linkedin\.com\/*/.test(tab.url)) {
             chrome.scripting.insertCSS({
                 target: { tabId: tabId },
                 files: ["./styles/linkedin.css"]

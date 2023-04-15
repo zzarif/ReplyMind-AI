@@ -1,133 +1,83 @@
-/**
- * set 1sec+ delay
- * for rendering buttons
- */
-setTimeout(() => {
-    
-    /**
-     * producthunt root comment container
-     * render replymind buttons inside
-     */
-    const root = document.querySelector(
-        "div.styles_container__0dgmN>div.flex.direction-column.flex-1"
-    );
+var observer = new MutationObserver(function (mutations) {
+    mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+            if(node.querySelector("div.styles_container__0dgmN")) {
+                observer.disconnect();
+                const root = 
+                    node.querySelector("div.styles_container__0dgmN").children[1];
 
-    console.log("Generating replymind buttons...");
+                const btnLike = getReplyMindButton(0, "  👍  "); // like
+                const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
+                const btnSupport = getReplyMindButton(2, "🫶Support"); // support
+                const btnJoke = getReplyMindButton(3, "🔥Joke"); //joke
+                const btnIdea = getReplyMindButton(4, "💡Idea"); // idea
+                const btnQuestion = getReplyMindButton(5, "❓Question"); // question
 
-    // like button
-    const btnLike = document.createElement("div");
-    btnLike.innerText = "👍";
-    btnLike.className = "replymind-ph-btn";
-    btnLike.addEventListener("click", () => {
-        generateComment(0);
-    });
+                // button parent conatiner
+                const container = document.createElement("div");
+                container.className = "replymind-ph-container";
 
-    // dislike button
-    const btnDislike = document.createElement("div");
-    btnDislike.innerText = "👎";
-    btnDislike.className = "replymind-ph-btn";
-    btnDislike.addEventListener("click", () => {
-        generateComment(1);
-    });
+                // insert buttons inside the parent container
+                container.appendChild(btnLike);
+                container.appendChild(btnDislike);
+                container.appendChild(btnSupport);
+                container.appendChild(btnJoke);
+                container.appendChild(btnIdea);
+                container.appendChild(btnQuestion);
 
-    // support button
-    const btnSupport = document.createElement("div");
-    btnSupport.innerText = "🫶Support";
-    btnSupport.className = "replymind-ph-btn";
-    btnSupport.addEventListener("click", () => {
-        generateComment(2);
-    });
+                root.appendChild(container);
+            }
+        });
+    })
+});
 
-    // joke button
-    const btnJoke = document.createElement("div");
-    btnJoke.innerText = "🔥Joke";
-    btnJoke.className = "replymind-ph-btn";
-    btnJoke.addEventListener("click", () => {
-        generateComment(3);
-    });
+observer.observe(document, {
+    attributes: false,
+    childList: true,
+    characterData: false,
+    subtree: true,
+});
 
-    // idea button
-    const btnIdea = document.createElement("div");
-    btnIdea.innerText = "💡Idea";
-    btnIdea.className = "replymind-ph-btn";
-    btnIdea.addEventListener("click", () => {
-        generateComment(4);
-    });
 
-    // question button
-    const btnQuestion = document.createElement("div");
-    btnQuestion.innerText = "❓Question";
-    btnQuestion.className = "replymind-ph-btn";
-    btnQuestion.addEventListener("click", () => {
-        generateComment(5);
-    });
-
-    // button parent conatiner
-    const container = document.createElement("div");
-    container.className = "replymind-ph-container";
-
-    // insert buttons inside the parent container
-    container.appendChild(btnLike);
-    container.appendChild(btnDislike);
-    container.appendChild(btnSupport);
-    container.appendChild(btnJoke);
-    container.appendChild(btnIdea);
-    container.appendChild(btnQuestion);
-
-    /**
-     * check if root exists
-     * insert the parent container
-     * with buttons inside
-     */
-    if (root) {
-        root.appendChild(container);
-    } else {
-        alert("ReplyMind: Something went wrong");
-    }
-}, 0);
-
-function showLoadingCursor () {
-    const style = document.createElement("style");
-    style.id = "cursor_wait";
-    style.innerHTML = `* {cursor: wait;}`;
-    document.head.insertBefore(style, null);
-};
-  
-function restoreCursor () {
-    document.getElementById("cursor_wait").remove();
-};
 
 /**
- * function to fetch response from server
- * body: caption and comment reaction (clicked button)
- * @param "type": which button was clicked
+ * function to generate ReplyMind button
+ * @param "which" : which button (like/support/...)
+ * @param "text" : text of the button
+ * @returns generated button
  */
-async function generateComment (type) {
+function getReplyMindButton(which, text) { 
+    var rmButton = document.createElement("button");
+    rmButton.className = "replymind-ph-btn";
+    var txtNode = document.createTextNode(text);
+    rmButton.appendChild(txtNode);
+    rmButton.addEventListener("click", (e) => {
+        generateComment(e.target, which);
+    });
+    return rmButton;
+}
 
-    const productTitle = document.querySelector(
-        "h1.color-darker-grey.fontSize-24.fontWeight-700.noOfLines-undefined.styles_title__vct6Q"
-    ).textContent;
-    const productSubtitle = document.querySelector(
-        "h2.color-lighter-grey.fontSize-24.fontWeight-300.noOfLines-undefined.styles_tagline___TmmA"
-    ).textContent;
-    const productDesc = document.querySelector(
-        "div.styles_htmlText__d6xln.color-darker-grey.fontSize-16.fontWeight-400"
-    ).textContent;
 
-    const textarea = document.querySelector(
-        "textarea.rta__textarea.styles_textArea___VXHz"
-    );
+/**
+ * function to get poster, caption
+ * send them to the server and
+ * fetch ChatGPT response
+ * @param "viewClicked" : clicked button
+ * @param "type" : type of reaction
+ */
+async function generateComment(viewClicked, type) {
+    disableButtons(viewClicked);
 
-    console.log(productTitle);
-    console.log(productSubtitle);
-    console.log(productDesc);
+    try {
+        const productTitle = document.querySelector("h1.color-darker-grey").textContent.trim();
+        const productSubtitle = document.querySelector("h2.color-lighter-grey").textContent.trim();
+        const productDesc = document.querySelector("div.styles_htmlText__d6xln").textContent.trim();
 
-    
-    // if all the textcontents are found
-    if (productTitle&&productSubtitle&&productDesc) {
-        showLoadingCursor();
+        // textarea to put ChatGPT response
+        const textarea = document.querySelector("textarea.rta__textarea");
 
-        await fetch("http://localhost:3000/producthunt", {
+        // fetch ChatGPT response from server
+        await fetch("https://replymind.cyclic.app/producthunt", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -155,11 +105,23 @@ async function generateComment (type) {
             });
             textarea.value = data.comment;
             textarea.dispatchEvent(inputEvent);
-
-            restoreCursor();
         });
+        
+    } catch(err) {
+        alert("REPLYMIND: Something went wrong!");
+    } finally {
+        restoreButtons(viewClicked);
     }
-    else {
-        alert("ReplyMind: Something went wrong");
-    }
+};
+
+function disableButtons (viewClicked) {
+    const pDiv = viewClicked.parentNode;
+    for (i=0; i<pDiv.childElementCount; i++) 
+        pDiv.children[i].disabled = true;
+};
+  
+function restoreButtons (viewClicked) {
+    const pDiv = viewClicked.parentNode;
+    for (i=0; i<pDiv.childElementCount; i++) 
+        pDiv.children[i].disabled = false;
 };
