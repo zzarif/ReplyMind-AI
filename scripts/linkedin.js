@@ -18,14 +18,14 @@ document.addEventListener("focusin", (e) => {
 
         // if the buttons does NOT already exist
         // then generate the buttons
-        if (form_comments.childElementCount < 2) {
+        if (form_comments.querySelector("div.replymind-linkedin-container") === null) {
             
             const btnLike = getReplyMindButton(0, "  👍  "); // like
             const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
-            const btnSupport = getReplyMindButton(2, "🫶Support"); // support
-            const btnJoke = getReplyMindButton(3, "🔥Joke"); //joke
-            const btnIdea = getReplyMindButton(4, "💡Idea"); // idea
-            const btnQuestion = getReplyMindButton(5, "❓Question"); // question
+            const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
+            const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
+            const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
+            const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
 
             // button parent conatiner
             const container = document.createElement("div");
@@ -70,15 +70,12 @@ function getReplyMindButton(which, text) {
  * @param "type" : type of reaction
  */
 async function generateComment(viewClicked, type) {
-    console.log("Generating comment...");
-
     disableButtons(viewClicked);
 
     try {
         var poster, caption;
         // if it is a comment
         if (viewClicked.closest("div.comments-comment-box").nextElementSibling) {
-            console.log("Commenting...");
             // name of the poster
             poster = viewClicked.closest("div.feed-shared-update-v2")
                    .querySelector("span.update-components-actor__name")
@@ -90,7 +87,6 @@ async function generateComment(viewClicked, type) {
         } 
         // if it is a reply to a comment
         else {
-            console.log("Replying...");
             // name of the commenter
             poster = viewClicked.closest("article.comments-comment-item")
                      .querySelector("span.comments-post-meta__name-text")

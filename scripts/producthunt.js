@@ -1,17 +1,17 @@
 var observer = new MutationObserver(function (mutations) {
     mutations.forEach(mutation => {
         mutation.addedNodes.forEach(node => {
-            if(node.querySelector("div.styles_container__0dgmN")) {
+            if(document.querySelector("div.styles_container__0dgmN")) {
                 observer.disconnect();
                 const root = 
                     node.querySelector("div.styles_container__0dgmN").children[1];
 
                 const btnLike = getReplyMindButton(0, "  👍  "); // like
                 const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
-                const btnSupport = getReplyMindButton(2, "🫶Support"); // support
-                const btnJoke = getReplyMindButton(3, "🔥Joke"); //joke
-                const btnIdea = getReplyMindButton(4, "💡Idea"); // idea
-                const btnQuestion = getReplyMindButton(5, "❓Question"); // question
+                const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
+                const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
+                const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
+                const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
 
                 // button parent conatiner
                 const container = document.createElement("div");
@@ -91,8 +91,6 @@ async function generateComment(viewClicked, type) {
         })
         .then((res) => res.json())
         .then((data) => {
-            console.log(data.comment);
-
             /**
              * trigger event input
              * with response text from server

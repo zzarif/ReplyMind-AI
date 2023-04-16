@@ -15,13 +15,13 @@ document.addEventListener("focusin", (e) => {
         
         const root = document.querySelector("[data-testid='toolBar']").parentNode;
 
-        if (root.firstElementChild.className !== "replymind-twt-container") {
+        if (root.querySelector("div.replymind-twt-container") === null) {
             const btnLike = getReplyMindButton(0, "  👍  "); // like
             const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
-            const btnSupport = getReplyMindButton(2, "🫶Support"); // support
-            const btnJoke = getReplyMindButton(3, "🔥Joke"); //joke
-            const btnIdea = getReplyMindButton(4, "💡Idea"); // idea
-            const btnQuestion = getReplyMindButton(5, "❓Question"); // question
+            const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
+            const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
+            const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
+            const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
     
             // button parent conatiner
             const container = document.createElement("div");
@@ -66,8 +66,6 @@ function getReplyMindButton(which, text) {
  * @param "type" : type of reaction
  */
 async function generateComment(viewClicked, type) {
-    console.log("Generating comment...");
-
     disableButtons(viewClicked);
 
     try {
