@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "Ubuntu";
-  src: local("Ubuntu"), url(./fonts/ubuntu_regular.ttf) format("truetype");
+  font-family: "TiltNeon";
+  src: local("TiltNeon"), url(./fonts/tiltneon.ttf) format("truetype");
 }
 /* 
 @font-face {
@@ -10,17 +10,7 @@
 
 body {
   width: 18rem;
-  background: #000428; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to right,
-    #004e92,
-    #000428
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to right,
-    #004e92,
-    #000428
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background-color: #F2F2F2;
 }
 
 .container {
@@ -30,6 +20,18 @@ body {
   padding: 0.7rem;
 }
 
+img {
+  width: 80%;
+  height: 80%;
+  margin-top: 1.7rem;
+}
+
+label {
+  font-family: "TiltNeon";
+  text-align: center;
+  margin-top: 0.4rem;
+  font-size: 1rem;
+}
 .container-2 {
   display: flex;
   flex-direction: row;
@@ -37,6 +39,5 @@ body {
 
 i {
   font-size: 2rem;
-  color: white;
   margin: 0.7rem;
 }
