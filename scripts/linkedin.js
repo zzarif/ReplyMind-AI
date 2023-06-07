@@ -26,6 +26,8 @@ document.addEventListener("focusin", (e) => {
             const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
             const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
             const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
+            const btnRegen = getReplyMindButton(6, "🔁 Regenerate"); // regenerate
+            btnRegen.disabled = true;
 
             // button parent conatiner
             const container = document.createElement("div");
@@ -38,6 +40,7 @@ document.addEventListener("focusin", (e) => {
             container.appendChild(btnJoke);
             container.appendChild(btnIdea);
             container.appendChild(btnQuestion);
+            container.appendChild(btnRegen);
 
             form_comments.appendChild(container);
         }
@@ -61,6 +64,9 @@ function getReplyMindButton(which, text) {
     });
     return rmButton;
 }
+
+// current react button on action
+var ctype = -1;
 
 /**
  * function to get poster, caption
@@ -102,28 +108,92 @@ async function generateComment(viewClicked, type) {
         const contentEditableDiv = viewClicked.closest("form.comments-comment-box__form")
                                    .querySelector("div.ql-editor");
 
-        // fetch ChatGPT response from server
-        await fetch("https://replymind.cyclic.app/linkedin", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                poster: poster,
-                caption: caption,
-                type: type
+        // usual comment, generate/complete
+        if (type!==6) {
+            ctype = type;
+
+            // complete the comment
+            if (contentEditableDiv.textContent) {
+                const incmpltComment = contentEditableDiv.textContent;
+                // fetch ChatGPT response from server
+                await fetch("https://replymind.cyclic.app/linkedin-completion", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        incmpltComment: incmpltComment,
+                        type: type
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('insertText', false, " "+data.comment);
+                });
+            } 
+            // generate full comment
+            else {
+                // fetch ChatGPT response from server
+                await fetch("https://replymind.cyclic.app/linkedin", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        type: type
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
+        }
+
+        // type === 6, that means regenerate comment
+        else {
+            const regenComment = contentEditableDiv.textContent;
+            // fetch ChatGPT response from server
+            await fetch("https://replymind.cyclic.app/linkedin-regen", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    poster: poster,
+                    caption: caption,
+                    regenComment: regenComment,
+                    type: ctype
+                })
             })
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            /**
-             * trigger event insert text
-             * with response text from server
-             * https://stackoverflow.com/a/72935050
-             */
-            contentEditableDiv.focus();
-            document.execCommand('insertText', false, data.comment);
-        });
+            .then((res) => res.json())
+            .then((data) => {
+                /**
+                 * trigger event insert text
+                 * with response text from server
+                 * https://stackoverflow.com/a/72935050
+                 */
+                contentEditableDiv.focus();
+                document.execCommand('undo', false);
+                document.execCommand('insertText', false, data.comment);
+            });
+        }   
         
     } catch(err) {
         alert("REPLYMIND: Something went wrong!");
