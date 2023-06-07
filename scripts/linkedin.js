@@ -136,7 +136,9 @@ async function generateComment(viewClicked, type) {
                      * https://stackoverflow.com/a/72935050
                      */
                     contentEditableDiv.focus();
-                    document.execCommand('insertText', false, " "+data.comment);
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
+                    document.execCommand('insertText', false, data.comment);
                 });
             } 
             // generate full comment
@@ -190,7 +192,8 @@ async function generateComment(viewClicked, type) {
                  * https://stackoverflow.com/a/72935050
                  */
                 contentEditableDiv.focus();
-                document.execCommand('undo', false);
+                document.execCommand('selectAll', false);
+                document.execCommand('delete', false);
                 document.execCommand('insertText', false, data.comment);
             });
         }   
