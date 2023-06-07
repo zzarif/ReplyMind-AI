@@ -21,9 +21,6 @@
   },
   "options_page": "./ui/options.html",
   "permissions": [
-      "activeTab",
-      "tabs",
-      "storage",
       "scripting"
   ],
   "host_permissions": [
