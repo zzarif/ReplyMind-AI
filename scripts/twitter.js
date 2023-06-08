@@ -22,7 +22,9 @@ document.addEventListener("focusin", (e) => {
             const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
             const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
             const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
-    
+            const btnRegen = getReplyMindButton(6, "🔁 Regenerate"); // regenerate
+            btnRegen.disabled = true;
+
             // button parent conatiner
             const container = document.createElement("div");
             container.className = "replymind-twt-container";
@@ -34,6 +36,7 @@ document.addEventListener("focusin", (e) => {
             container.appendChild(btnJoke);
             container.appendChild(btnIdea);
             container.appendChild(btnQuestion);
+            container.appendChild(btnRegen);
     
             root.insertBefore(container, root.firstElementChild);
         }
@@ -58,6 +61,9 @@ function getReplyMindButton(which, text) {
     return rmButton;
 }
 
+// current react button on action
+var ctype = -1;
+
 /**
  * function to get poster, caption
  * send them to the server and
@@ -70,35 +76,99 @@ async function generateComment(viewClicked, type) {
 
     try {
         // name of the poster
-        const poster = viewClicked.closest("div.css-1dbjc4n.r-iphfwy")
+        const poster = viewClicked.closest("[data-viewportview='true']")
                       .querySelector("[data-testid='User-Name']")
                       .children[0].textContent.trim();
         // caption of the post
-        const caption = viewClicked.closest("div.css-1dbjc4n.r-iphfwy")
+        const caption = viewClicked.closest("[data-viewportview='true']")
                         .querySelector("[data-testid='tweetText']")
                         .textContent.trim();
 
-        // fetch ChatGPT response from server
-        await fetch("https://replymind.cyclic.app/twitter", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                poster: poster,
-                caption: caption,
-                type: type
+        const contentEditableDiv = viewClicked.closest("[data-viewportview='true']")
+                        .querySelector("div.notranslate.public-DraftEditor-content");
+        
+        // usual reply, full/completion
+        if (type !== 6) {
+            ctype = type;
+            // reply completion
+            if(contentEditableDiv.textContent) {
+                const incmpltComment = contentEditableDiv.textContent;
+                await fetch("https://replymind.cyclic.app/api/twitter/completion", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        incmpltComment: incmpltComment,
+                        type: type
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    document.execCommand('selectAll', true);
+                    document.execCommand('delete', true);
+                    document.execCommand('insertText', true, data.comment);
+                });
+            }
+            // full reply
+            else {
+                await fetch("https://replymind.cyclic.app/api/twitter/full", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        type: type
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    document.execCommand('insertText', true, data.comment);
+                });
+            }
+        }
+        // type === 6, that means regenerate reply
+        else {
+            const regenComment = contentEditableDiv.textContent;
+            // fetch ChatGPT response from server
+            await fetch("https://replymind.cyclic.app/api/twitter/regen", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    poster: poster,
+                    caption: caption,
+                    regenComment: regenComment,
+                    type: ctype
+                })
             })
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            /**
-             * trigger event insert text
-             * with response text from server
-             * https://stackoverflow.com/a/72935050
-             */
-            document.execCommand('insertText', false, data.comment);
-        });
+            .then((res) => res.json())
+            .then((data) => {
+                /**
+                 * trigger event insert text
+                 * with response text from server
+                 * https://stackoverflow.com/a/72935050
+                 */
+                document.execCommand('selectAll', true);
+                document.execCommand('delete', true);
+                document.execCommand('insertText', true, data.comment);
+            });
+        }
         
     } catch(err) {
         alert("REPLYMIND: Something went wrong!");

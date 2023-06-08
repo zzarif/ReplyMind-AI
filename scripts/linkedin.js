@@ -116,7 +116,7 @@ async function generateComment(viewClicked, type) {
             if (contentEditableDiv.textContent) {
                 const incmpltComment = contentEditableDiv.textContent;
                 // fetch ChatGPT response from server
-                await fetch("https://replymind.cyclic.app/linkedin-completion", {
+                await fetch("https://replymind.cyclic.app/api/linkedin/completion", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -144,7 +144,7 @@ async function generateComment(viewClicked, type) {
             // generate full comment
             else {
                 // fetch ChatGPT response from server
-                await fetch("https://replymind.cyclic.app/linkedin", {
+                await fetch("https://replymind.cyclic.app/api/linkedin/full", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -172,7 +172,7 @@ async function generateComment(viewClicked, type) {
         else {
             const regenComment = contentEditableDiv.textContent;
             // fetch ChatGPT response from server
-            await fetch("https://replymind.cyclic.app/linkedin-regen", {
+            await fetch("https://replymind.cyclic.app/api/linkedin/regen", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
