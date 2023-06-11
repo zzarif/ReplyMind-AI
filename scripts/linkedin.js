@@ -20,13 +20,15 @@ document.addEventListener("focusin", (e) => {
         // then generate the buttons
         if (form_comments.querySelector("div.replymind-linkedin-container") === null) {
             
-            const btnLike = getReplyMindButton(0, "  👍  "); // like
-            const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
+            const btnLike = getReplyMindButton(0, " 👍 "); // like
+            const btnDislike = getReplyMindButton(1, " 👎 "); // dislike
             const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
             const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
-            const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
+            const btnIdea = getReplyMindButton(4, "💡 Thought"); // idea
             const btnQuestion = getReplyMindButton(5, "❓ Question"); // question
-            const btnRegen = getReplyMindButton(6, "🔁 Regenerate"); // regenerate
+            const btnComplete = getReplyMindButton(6, "✍️ Complete"); // complete
+            const btnRegen = getReplyMindButton(7, "🔁 Regenerate"); // regenerate
+            btnComplete.disabled = true;
             btnRegen.disabled = true;
 
             // button parent conatiner
@@ -40,9 +42,20 @@ document.addEventListener("focusin", (e) => {
             container.appendChild(btnJoke);
             container.appendChild(btnIdea);
             container.appendChild(btnQuestion);
+            container.appendChild(btnComplete);
             container.appendChild(btnRegen);
 
             form_comments.appendChild(container);
+
+            viewOnFocus.addEventListener("keyup", (e) => {
+                if (viewOnFocus.textContent) {
+                    btnComplete.disabled = false;
+                    btnRegen.disabled = false;
+                } else {
+                    btnComplete.disabled = true;
+                    btnRegen.disabled = true;
+                }
+            });
         }
     }
 });
@@ -65,9 +78,6 @@ function getReplyMindButton(which, text) {
     return rmButton;
 }
 
-// current react button on action
-var ctype = -1;
-
 /**
  * function to get poster, caption
  * send them to the server and
@@ -81,7 +91,7 @@ async function generateComment(viewClicked, type) {
     try {
         var poster, caption;
         // if it is a comment
-        if (viewClicked.closest("div.comments-comment-box").nextElementSibling) {
+        if (viewClicked.closest("article.comments-comment-item") === null) {
             // name of the poster
             poster = viewClicked.closest("div.feed-shared-update-v2")
                    .querySelector("span.update-components-actor__name")
@@ -108,71 +118,10 @@ async function generateComment(viewClicked, type) {
         const contentEditableDiv = viewClicked.closest("form.comments-comment-box__form")
                                    .querySelector("div.ql-editor");
 
-        // usual comment, generate/complete
-        if (type!==6) {
-            ctype = type;
-
-            // complete the comment
-            if (contentEditableDiv.textContent) {
-                const incmpltComment = contentEditableDiv.textContent;
-                // fetch ChatGPT response from server
-                await fetch("https://replymind.cyclic.app/api/linkedin/completion", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        poster: poster,
-                        caption: caption,
-                        incmpltComment: incmpltComment,
-                        type: type
-                    })
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                    /**
-                     * trigger event insert text
-                     * with response text from server
-                     * https://stackoverflow.com/a/72935050
-                     */
-                    contentEditableDiv.focus();
-                    document.execCommand('selectAll', false);
-                    document.execCommand('delete', false);
-                    document.execCommand('insertText', false, data.comment);
-                });
-            } 
-            // generate full comment
-            else {
-                // fetch ChatGPT response from server
-                await fetch("https://replymind.cyclic.app/api/linkedin/full", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        poster: poster,
-                        caption: caption,
-                        type: type
-                    })
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                    /**
-                     * trigger event insert text
-                     * with response text from server
-                     * https://stackoverflow.com/a/72935050
-                     */
-                    contentEditableDiv.focus();
-                    document.execCommand('insertText', false, data.comment);
-                });
-            }
-        }
-
-        // type === 6, that means regenerate comment
-        else {
-            const regenComment = contentEditableDiv.textContent;
-            // fetch ChatGPT response from server
-            await fetch("https://replymind.cyclic.app/api/linkedin/regen", {
+        // complete comment
+        if (type === 6) {
+            const incmpltComment = contentEditableDiv.textContent;
+            await fetch("https://replymind.cyclic.app/api/linkedin/completion", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -180,8 +129,7 @@ async function generateComment(viewClicked, type) {
                 body: JSON.stringify({
                     poster: poster,
                     caption: caption,
-                    regenComment: regenComment,
-                    type: ctype
+                    incmpltComment: incmpltComment
                 })
             })
             .then((res) => res.json())
@@ -196,9 +144,61 @@ async function generateComment(viewClicked, type) {
                 document.execCommand('delete', false);
                 document.execCommand('insertText', false, data.comment);
             });
-        }   
+        }
+        // regenarate comment
+        else if (type === 7) {
+            const regenComment = contentEditableDiv.textContent;
+            await fetch("https://replymind.cyclic.app/api/linkedin/regen", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    poster: poster,
+                    caption: caption,
+                    regenComment: regenComment
+                })
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                /**
+                 * trigger event insert text
+                 * with response text from server
+                 * https://stackoverflow.com/a/72935050
+                 */
+                contentEditableDiv.focus();
+                document.execCommand('selectAll', false);
+                document.execCommand('delete', false);
+                document.execCommand('insertText', false, data.comment);
+            });
+        }
+        // full comment (type 0 to 5)
+        else {
+            await fetch("https://replymind.cyclic.app/api/linkedin/full", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    poster: poster,
+                    caption: caption,
+                    type: type
+                })
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                /**
+                 * trigger event insert text
+                 * with response text from server
+                 * https://stackoverflow.com/a/72935050
+                 */
+                contentEditableDiv.focus();
+                document.execCommand('insertText', false, data.comment);
+            });
+        }
         
     } catch(err) {
+        console.log(err);
         alert("REPLYMIND: Something went wrong!");
     } finally {
         restoreButtons(viewClicked);
