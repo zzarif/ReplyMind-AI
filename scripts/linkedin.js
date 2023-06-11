@@ -25,7 +25,7 @@ document.addEventListener("focusin", (e) => {
             const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
             const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
             const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
-            const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
+            const btnQuestion = getReplyMindButton(5, "❓ Question"); // question
             const btnRegen = getReplyMindButton(6, "🔁 Regenerate"); // regenerate
             btnRegen.disabled = true;
 
