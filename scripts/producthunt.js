@@ -1,41 +1,52 @@
-var observer = new MutationObserver(function (mutations) {
-    mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-            if(document.querySelector("div.styles_container__0dgmN")) {
-                observer.disconnect();
-                const root = 
-                    node.querySelector("div.styles_container__0dgmN").children[1];
+/**
+ * focus event listener
+ * to check if an element is focused
+ */
+document.addEventListener("focusin", (e) => {
+    const viewOnFocus = e.target;
+    if (viewOnFocus.nodeName === "TEXTAREA") {
 
-                const btnLike = getReplyMindButton(0, "  👍  "); // like
-                const btnDislike = getReplyMindButton(1, "  👎  "); // dislike
-                const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
-                const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
-                const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
-                const btnQuestion = getReplyMindButton(5, "🤔 Curious"); // question
+        if (viewOnFocus.parentNode.parentNode
+            .querySelector("div.replymind-ph-container") === null) {
 
-                // button parent conatiner
-                const container = document.createElement("div");
-                container.className = "replymind-ph-container";
+            const btnLike = getReplyMindButton(0, " 👍 "); // like
+            const btnDislike = getReplyMindButton(1, " 👎 "); // dislike
+            const btnSupport = getReplyMindButton(2, "❤️ Support"); // support
+            const btnJoke = getReplyMindButton(3, "😂 Funny"); //joke
+            const btnIdea = getReplyMindButton(4, "💡Thought"); // idea
+            const btnQuestion = getReplyMindButton(5, "❓ Question"); // question
+            const btnComplete = getReplyMindButton(6, "✍️ Complete"); // complete
+            const btnRegen = getReplyMindButton(7, "🔁 Regenerate"); // regenerate
+            btnComplete.disabled = true;
+            btnRegen.disabled = true;
 
-                // insert buttons inside the parent container
-                container.appendChild(btnLike);
-                container.appendChild(btnDislike);
-                container.appendChild(btnSupport);
-                container.appendChild(btnJoke);
-                container.appendChild(btnIdea);
-                container.appendChild(btnQuestion);
+            // button parent conatiner
+            const container = document.createElement("div");
+            container.className = "replymind-ph-container";
 
-                root.appendChild(container);
-            }
-        });
-    })
-});
-
-observer.observe(document, {
-    attributes: false,
-    childList: true,
-    characterData: false,
-    subtree: true,
+            // insert buttons inside the parent container
+            container.appendChild(btnLike);
+            container.appendChild(btnDislike);
+            container.appendChild(btnSupport);
+            container.appendChild(btnJoke);
+            container.appendChild(btnIdea);
+            container.appendChild(btnQuestion);
+            container.appendChild(btnComplete);
+            container.appendChild(btnRegen);
+            
+            viewOnFocus.parentNode.insertAdjacentElement("afterend",container);
+            
+            viewOnFocus.addEventListener("keyup", (e) => {
+                if (viewOnFocus.textContent) {
+                    btnComplete.disabled = false;
+                    btnRegen.disabled = false;
+                } else {
+                    btnComplete.disabled = true;
+                    btnRegen.disabled = true;
+                }
+            });
+        }
+    }
 });
 
 
