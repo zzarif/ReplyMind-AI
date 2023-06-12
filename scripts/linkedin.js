@@ -60,6 +60,22 @@ document.addEventListener("focusin", (e) => {
     }
 });
 
+var commenter = "";
+var comment = "";
+document.addEventListener("click", (e) => {
+    const viewClicked = e.target;
+    if (viewClicked.nodeName === "span" ||
+        viewClicked.textContent === "Reply") {
+        // name of the commenter
+        commenter = viewClicked.closest("article.comments-comment-item")
+                    .querySelector("span.comments-post-meta__name-text")
+                    .textContent.trim();
+        // content of the comment
+        comment = viewClicked.closest("article.comments-comment-item")
+                    .querySelector("span.comments-comment-item__main-content")
+                    .textContent.trim();
+    }
+})
 
 /**
  * function to generate ReplyMind button
@@ -89,112 +105,192 @@ async function generateComment(viewClicked, type) {
     disableButtons(viewClicked);
 
     try {
-        var poster, caption;
-        // if it is a comment
-        if (viewClicked.closest("article.comments-comment-item") === null) {
-            // name of the poster
-            poster = viewClicked.closest("div.feed-shared-update-v2")
-                   .querySelector("span.update-components-actor__name")
-                   .children[0].textContent.trim();
-            // caption of the post
-            caption = viewClicked.closest("div.feed-shared-update-v2")
-                      .querySelector("div.update-components-text")
-                      .textContent.trim();
-        } 
-        // if it is a reply to a comment
-        else {
-            // name of the commenter
-            poster = viewClicked.closest("article.comments-comment-item")
-                     .querySelector("span.comments-post-meta__name-text")
-                     .textContent.trim();
-            // content of the comment
-            caption = viewClicked.closest("article.comments-comment-item")
-                      .querySelector("span.comments-comment-item__main-content")
-                      .textContent.trim();
-
-        }
-
+        // name of the poster
+        var poster = viewClicked.closest("div.feed-shared-update-v2")
+                .querySelector("span.update-components-actor__name")
+                .children[0].textContent.trim();
+        // caption of the post
+        var caption = viewClicked.closest("div.feed-shared-update-v2")
+                    .querySelector("div.update-components-text")
+                    .textContent.trim();
         // comment box to put ChatGPT response
         const contentEditableDiv = viewClicked.closest("form.comments-comment-box__form")
                                    .querySelector("div.ql-editor");
+                                
+        /**
+         * COMMENTING to the post
+         */
+        if (viewClicked.closest("article.comments-comment-item") === null) {
+            // complete comment
+            if (type === 6) {
+                const incmpltComment = contentEditableDiv.textContent;
+                await fetch("https://replymind.cyclic.app/api/linkedin/completion", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        incmpltComment: incmpltComment
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
+            // regenarate comment
+            else if (type === 7) {
+                const regenComment = contentEditableDiv.textContent;
+                await fetch("https://replymind.cyclic.app/api/linkedin/regen", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        regenComment: regenComment
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
+            // full comment (type 0 to 5)
+            else {
+                await fetch("https://replymind.cyclic.app/api/linkedin/full", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        type: type
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
+        }
 
-        // complete comment
-        if (type === 6) {
-            const incmpltComment = contentEditableDiv.textContent;
-            await fetch("https://replymind.cyclic.app/api/linkedin/completion", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    poster: poster,
-                    caption: caption,
-                    incmpltComment: incmpltComment
-                })
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                /**
-                 * trigger event insert text
-                 * with response text from server
-                 * https://stackoverflow.com/a/72935050
-                 */
-                contentEditableDiv.focus();
-                document.execCommand('selectAll', false);
-                document.execCommand('delete', false);
-                document.execCommand('insertText', false, data.comment);
-            });
-        }
-        // regenarate comment
-        else if (type === 7) {
-            const regenComment = contentEditableDiv.textContent;
-            await fetch("https://replymind.cyclic.app/api/linkedin/regen", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    poster: poster,
-                    caption: caption,
-                    regenComment: regenComment
-                })
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                /**
-                 * trigger event insert text
-                 * with response text from server
-                 * https://stackoverflow.com/a/72935050
-                 */
-                contentEditableDiv.focus();
-                document.execCommand('selectAll', false);
-                document.execCommand('delete', false);
-                document.execCommand('insertText', false, data.comment);
-            });
-        }
-        // full comment (type 0 to 5)
+
+        /**
+         * REPLYING to a comment
+         */
         else {
-            await fetch("https://replymind.cyclic.app/api/linkedin/full", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    poster: poster,
-                    caption: caption,
-                    type: type
+            //
+            // complete comment
+            if (type === 6) {
+                const incmpltComment = contentEditableDiv.textContent;
+                await fetch("https://replymind.cyclic.app/api/linkedin/reply-completion", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        commenter: commenter,
+                        comment: comment,
+                        incmpltComment: incmpltComment
+                    })
                 })
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                /**
-                 * trigger event insert text
-                 * with response text from server
-                 * https://stackoverflow.com/a/72935050
-                 */
-                contentEditableDiv.focus();
-                document.execCommand('insertText', false, data.comment);
-            });
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
+            // regenarate comment
+            else if (type === 7) {
+                const regenComment = contentEditableDiv.textContent;
+                await fetch("https://replymind.cyclic.app/api/linkedin/reply-regen", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        commenter: commenter,
+                        comment: comment,
+                        regenComment: regenComment
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
+            // full comment (type 0 to 5)
+            else {
+                await fetch("https://replymind.cyclic.app/api/linkedin/reply-full", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        poster: poster,
+                        caption: caption,
+                        commenter: commenter,
+                        comment: comment,
+                        type: type
+                    })
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    /**
+                     * trigger event insert text
+                     * with response text from server
+                     * https://stackoverflow.com/a/72935050
+                     */
+                    contentEditableDiv.focus();
+                    document.execCommand('insertText', false, data.comment);
+                });
+            }
         }
         
     } catch(err) {
