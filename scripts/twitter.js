@@ -118,9 +118,7 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
-                document.execCommand('selectAll', true);
-                document.execCommand('delete', true);
-                document.execCommand('insertText', true, data.comment);
+                document.execCommand('insertText', false, data.comment);
             });
         }
         // regenerate comment
@@ -144,9 +142,7 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
-                document.execCommand('selectAll', true);
-                document.execCommand('delete', true);
-                document.execCommand('insertText', true, data.comment);
+                document.execCommand('insertText', false, data.comment);
             });
         }
         // full comment
@@ -169,7 +165,7 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
-                document.execCommand('insertText', true, data.comment);
+                document.execCommand('insertText', false, data.comment);
             });
         }
         
