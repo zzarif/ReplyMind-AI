@@ -3,20 +3,21 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
+    margin-top: 0.5rem;
 }
 
 .replymind-ph-btn {
     cursor: pointer;
-    font-family: "Quicksand", sans-serif;
-    font-weight: 300;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
     font-size: 1rem;
     color: #da552f;
     background-color: transparent;
     border: 0.1rem solid #da552f;
     border-radius: 1.4rem;
-    padding: 0.1rem 0.6rem;
+    padding: 0.2rem 0.7rem;
     margin-right: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     transition: 0.3s;
     white-space: pre-wrap;
 }

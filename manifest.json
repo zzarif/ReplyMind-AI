@@ -26,6 +26,6 @@
   "host_permissions": [
       "https://www.linkedin.com/*",
       "https://twitter.com/compose/tweet",
-      "https://www.producthunt.com/posts/*"
+      "https://www.producthunt.com/*"
   ]
 }

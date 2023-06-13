@@ -58,7 +58,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         /**
          * on visit url: https://www.producthunt.com/posts/*
          * inject foreground content style: producthunt.css
-         * inject foreground content script: producthunt.js
+         * inject foreground content script: producthunt_posts.js
          */
         else if (/^https:\/\/www\.producthunt\.com\/post\/*/.test(tab.url)) {
             chrome.scripting.insertCSS({
@@ -70,10 +70,34 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
                 chrome.scripting.executeScript({
                     target: { tabId: tabId },
-                    files: ["./scripts/producthunt.js"]
+                    files: ["./scripts/producthunt_posts.js"]
                 })
                 .then(() => {
-                    console.log("injected producthunt script");
+                    console.log("injected producthunt posts script");
+                });
+            })
+            .catch(err => console.log(err));
+        }
+
+        /**
+         * on visit url: https://www.producthunt.com/discussions/*
+         * inject foreground content style: producthunt.css
+         * inject foreground content script: producthunt_discussions.js
+         */
+        else if (/^https:\/\/www\.producthunt\.com\/discussions\/*/.test(tab.url)) {
+            chrome.scripting.insertCSS({
+                target: { tabId: tabId },
+                files: ["./styles/producthunt.css"]
+            })
+            .then(() => {
+                console.log("injected producthunt styles");
+
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: ["./scripts/producthunt_discs.js"]
+                })
+                .then(() => {
+                    console.log("injected producthunt discussions script");
                 });
             })
             .catch(err => console.log(err));
