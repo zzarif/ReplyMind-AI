@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ReplyMind.ai",
   "description": "Revolutionize Your Social Media Interactions with ReplyMind: The AI-Powered Comment and Reply Generator!",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "icons": {
       "16": "./images/logo-16x16.png",
       "32": "./images/logo-32x32.png",
