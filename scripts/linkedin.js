@@ -31,6 +31,12 @@ document.addEventListener("focusin", (e) => {
             btnComplete.disabled = true;
             btnRegen.disabled = true;
 
+
+            const txtCount = document.createElement("div");
+            txtCount.className = "replymind-linkedin-txt";
+            txtCount.textContent = "-/20";
+            setCountOnView(txtCount);
+
             // button parent conatiner
             const container = document.createElement("div");
             container.className = "replymind-linkedin-container";
@@ -44,6 +50,7 @@ document.addEventListener("focusin", (e) => {
             container.appendChild(btnQuestion);
             container.appendChild(btnComplete);
             container.appendChild(btnRegen);
+            container.appendChild(txtCount);
 
             form_comments.appendChild(container);
 
@@ -89,7 +96,13 @@ function getReplyMindButton(which, text) {
     var txtNode = document.createTextNode(text);
     rmButton.appendChild(txtNode);
     rmButton.addEventListener("click", (e) => {
-        generateComment(e.target, which);
+        chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+            if (response.response_code === 200 && response.message < 20) {
+                generateComment(e.target, which);
+            } else {
+                alert("REPLYMIND: Get more replies!");
+            }
+        });
     });
     return rmButton;
 }
@@ -146,6 +159,7 @@ async function generateComment(viewClicked, type) {
                     document.execCommand('selectAll', false);
                     document.execCommand('delete', false);
                     document.execCommand('insertText', false, data.comment);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // regenarate comment
@@ -173,6 +187,7 @@ async function generateComment(viewClicked, type) {
                     document.execCommand('selectAll', false);
                     document.execCommand('delete', false);
                     document.execCommand('insertText', false, data.comment);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // full comment (type 0 to 5)
@@ -197,6 +212,7 @@ async function generateComment(viewClicked, type) {
                      */
                     contentEditableDiv.focus();
                     document.execCommand('insertText', false, data.comment);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
         }
@@ -234,6 +250,7 @@ async function generateComment(viewClicked, type) {
                     document.execCommand('selectAll', false);
                     document.execCommand('delete', false);
                     document.execCommand('insertText', false, data.comment);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // regenarate comment
@@ -263,6 +280,7 @@ async function generateComment(viewClicked, type) {
                     document.execCommand('selectAll', false);
                     document.execCommand('delete', false);
                     document.execCommand('insertText', false, data.comment);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // full comment (type 0 to 5)
@@ -289,6 +307,7 @@ async function generateComment(viewClicked, type) {
                      */
                     contentEditableDiv.focus();
                     document.execCommand('insertText', false, data.comment);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
         }
@@ -311,4 +330,18 @@ function restoreButtons (viewClicked) {
     const pDiv = viewClicked.parentNode;
     for (i=0; i<pDiv.childElementCount; i++) 
         pDiv.children[i].disabled = false;
+};
+
+function setCountOnView (view) {
+    chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+        if (response.response_code === 200) {
+            view.textContent = `${response.message}/20`;
+        }
+    });
+};
+
+function updateCountOnView (view) {
+    chrome.runtime.sendMessage({ action: "setData" }, (response) => {
+        setCountOnView(view);
+    });
 };

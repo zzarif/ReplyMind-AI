@@ -104,3 +104,47 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         }
     }
 });
+
+/**
+ * 
+ */
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "setData") {
+        chrome.storage.sync.get(["replymind_count"], (result) => {
+            var count = result.replymind_count;
+            count++;
+            chrome.storage.local.set({ "replymind_count":  count}, () => {
+                sendResponse({
+                    "response_code": 200,
+                    "message": count
+                });
+            });
+        });
+    }
+
+    else if (request.action === "getData") {
+        chrome.storage.sync.get(["replymind_count"], (result) => {
+            // if the variable exists
+            if (result.replymind_count) {
+                sendResponse({
+                    "response_code": 200,
+                    "message": result.replymind_count
+                });
+            }
+            // if does not exist create new entry
+            else {
+                chrome.storage.local.set({ "replymind_count":  0}, () => {
+                    sendResponse({
+                        "response_code": 200,
+                        "message": 0
+                    });
+                });
+            }
+        });
+        return true;
+    }
+
+    else {
+        sendResponse({"response_code": 404});
+    }
+});  
