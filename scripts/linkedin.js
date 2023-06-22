@@ -34,7 +34,6 @@ document.addEventListener("focusin", (e) => {
 
             const txtCount = document.createElement("div");
             txtCount.className = "replymind-linkedin-txt";
-            txtCount.textContent = "-/20";
             setCountOnView(txtCount);
 
             // button parent conatiner
@@ -96,13 +95,15 @@ function getReplyMindButton(which, text) {
     var txtNode = document.createTextNode(text);
     rmButton.appendChild(txtNode);
     rmButton.addEventListener("click", (e) => {
-        chrome.runtime.sendMessage({ action: "getData" }, (response) => {
-            if (response.response_code === 200 && response.message < 20) {
-                generateComment(e.target, which);
-            } else {
-                alert("REPLYMIND: Get more replies!");
-            }
-        });
+        generateComment(e.target, which);
+
+        // chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+        //     if (response.response_code === 200 && response.message < 20) {
+        //         generateComment(e.target, which);
+        //     } else {
+        //         alert("REPLYMIND: Get more replies!");
+        //     }
+        // });
     });
     return rmButton;
 }
@@ -211,6 +212,8 @@ async function generateComment(viewClicked, type) {
                      * https://stackoverflow.com/a/72935050
                      */
                     contentEditableDiv.focus();
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
                     document.execCommand('insertText', false, data.comment);
                     updateCountOnView(viewClicked.parentNode.lastChild);
                 });
@@ -306,6 +309,8 @@ async function generateComment(viewClicked, type) {
                      * https://stackoverflow.com/a/72935050
                      */
                     contentEditableDiv.focus();
+                    document.execCommand('selectAll', false);
+                    document.execCommand('delete', false);
                     document.execCommand('insertText', false, data.comment);
                     updateCountOnView(viewClicked.parentNode.lastChild);
                 });
@@ -335,7 +340,7 @@ function restoreButtons (viewClicked) {
 function setCountOnView (view) {
     chrome.runtime.sendMessage({ action: "getData" }, (response) => {
         if (response.response_code === 200) {
-            view.textContent = `${response.message}/20`;
+            view.textContent = `${response.message}`;
         }
     });
 };

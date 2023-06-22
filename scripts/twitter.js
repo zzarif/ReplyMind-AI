@@ -118,6 +118,8 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
+                document.execCommand('selectAll', false);
+                document.execCommand('delete', false);
                 document.execCommand('insertText', false, data.comment);
             });
         }

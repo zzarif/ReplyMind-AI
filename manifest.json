@@ -22,8 +22,7 @@
   "options_page": "./ui/options.html",
   "permissions": [
       "scripting",
-      "storage",
-      "sync"
+      "storage"
   ],
   "host_permissions": [
       "https://www.linkedin.com/*",
