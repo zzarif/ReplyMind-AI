@@ -5,6 +5,18 @@
     align-items: center;
 }
 
+.replymind-twt-txt {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #0096FF;
+    background-color: transparent;
+    padding: 0.2rem 0.7rem;
+    margin-right: 0.5rem;
+    margin-top: 0.6rem;
+    white-space: pre-wrap;
+}
+
 .replymind-twt-btn {
     cursor: pointer;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

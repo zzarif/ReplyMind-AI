@@ -106,37 +106,37 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 /**
- * 
+ * storage sync
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "setData") {
-        chrome.storage.sync.get(["replymind_count"], (result) => {
-            var count = result.replymind_count;
+        chrome.storage.sync.get(["replymind"], (result) => {
+            var count = result.replymind;
             count++;
-            chrome.storage.sync.set({ replymind_count:  count}, () => {
+            chrome.storage.sync.set({ replymind:  count}, () => {
                 sendResponse({
                     "response_code": 200,
-                    "message": count
+                    "payload": count
                 });
             });
         });
     }
 
     else if (request.action === "getData") {
-        chrome.storage.sync.get(["replymind_count"], (result) => {
+        chrome.storage.sync.get(["replymind"], (result) => {
             // if the variable exists
-            if (result.replymind_count) {
+            if (result.replymind) {
                 sendResponse({
                     "response_code": 200,
-                    "message": result.replymind_count
+                    "payload": result.replymind
                 });
             }
             // if does not exist create new entry
             else {
-                chrome.storage.sync.set({ replymind_count:  0}, () => {
+                chrome.storage.sync.set({ replymind:  0}, () => {
                     sendResponse({
                         "response_code": 200,
-                        "message": 0
+                        "payload": 0
                     });
                 });
             }

@@ -340,7 +340,7 @@ function restoreButtons (viewClicked) {
 function setCountOnView (view) {
     chrome.runtime.sendMessage({ action: "getData" }, (response) => {
         if (response.response_code === 200) {
-            view.textContent = `${response.message}`;
+            view.textContent = `${response.payload}/20`;
         }
     });
 };

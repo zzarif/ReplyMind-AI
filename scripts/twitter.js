@@ -27,6 +27,10 @@ document.addEventListener("focusin", (e) => {
             btnComplete.disabled = true;
             btnRegen.disabled = true;
 
+            const txtCount = document.createElement("div");
+            txtCount.className = "replymind-twt-txt";
+            setCountOnView(txtCount);
+
             // button parent conatiner
             const container = document.createElement("div");
             container.className = "replymind-twt-container";
@@ -40,11 +44,12 @@ document.addEventListener("focusin", (e) => {
             container.appendChild(btnQuestion);
             container.appendChild(btnComplete);
             container.appendChild(btnRegen);
+            container.appendChild(txtCount);
     
             root.insertBefore(container, root.firstElementChild);
 
             viewOnFocus.addEventListener("keyup", (e) => {
-                if (viewOnFocus.textContent) {
+                if (viewOnFocus.textContent && viewOnFocus.textContent.trim()) {
                     btnComplete.disabled = false;
                     btnRegen.disabled = false;
                 } else {
@@ -95,7 +100,7 @@ async function generateComment(viewClicked, type) {
                         .textContent.trim();
 
         const contentEditableDiv = viewClicked.closest("[data-viewportview='true']")
-                        .querySelector("div.notranslate.public-DraftEditor-content");
+                        .querySelector("[contenteditable='true']");
         
         // complete comment
         if (type === 6) {
@@ -118,9 +123,9 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
-                document.execCommand('selectAll', false);
-                document.execCommand('delete', false);
-                document.execCommand('insertText', false, data.comment);
+                clearAllText(contentEditableDiv);
+                dispatchPaste(contentEditableDiv, data.comment);
+                updateCountOnView(viewClicked.parentNode.lastChild);
             });
         }
         // regenerate comment
@@ -144,7 +149,9 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
-                document.execCommand('insertText', false, data.comment);
+                clearAllText(contentEditableDiv);
+                dispatchPaste(contentEditableDiv, data.comment);
+                updateCountOnView(viewClicked.parentNode.lastChild);
             });
         }
         // full comment
@@ -167,7 +174,9 @@ async function generateComment(viewClicked, type) {
                  * with response text from server
                  * https://stackoverflow.com/a/72935050
                  */
-                document.execCommand('insertText', false, data.comment);
+                clearAllText(contentEditableDiv);
+                dispatchPaste(contentEditableDiv, data.comment);
+                updateCountOnView(viewClicked.parentNode.lastChild);
             });
         }
         
@@ -188,4 +197,44 @@ function restoreButtons (viewClicked) {
   const pDiv = viewClicked.parentNode;
   for (i=0; i<pDiv.childElementCount; i++) 
       pDiv.children[i].disabled = false;
+};
+
+function clearAllText(target) {
+    if (target.textContent) {
+        var event = new KeyboardEvent("keydown", {
+            key: "Backspace",
+            keyCode: 8
+        });
+        Array.from(target.textContent)
+             .forEach(function() {
+                target.dispatchEvent(event); 
+        });
+    }
+}
+
+function dispatchPaste(target, text) {
+    const dataTransfer = new DataTransfer();
+    dataTransfer.setData('text/plain', text);
+    target.dispatchEvent(
+      new ClipboardEvent('paste', {
+        clipboardData: dataTransfer,
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    dataTransfer.clearData();
+}
+
+function setCountOnView (view) {
+    chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+        if (response.response_code === 200) {
+            view.textContent = `${response.payload}/20`;
+        }
+    });
+};
+
+function updateCountOnView (view) {
+    chrome.runtime.sendMessage({ action: "setData" }, (response) => {
+        setCountOnView(view);
+    });
 };
