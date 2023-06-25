@@ -54,7 +54,7 @@ document.addEventListener("focusin", (e) => {
             form_comments.appendChild(container);
 
             viewOnFocus.addEventListener("keyup", (e) => {
-                if (viewOnFocus.textContent) {
+                if (viewOnFocus.textContent && viewOnFocus.textContent.trim()) {
                     btnComplete.disabled = false;
                     btnRegen.disabled = false;
                 } else {

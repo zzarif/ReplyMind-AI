@@ -200,14 +200,17 @@ function restoreButtons (viewClicked) {
 };
 
 function clearAllText(target) {
-    if (target.textContent) {
-        var event = new KeyboardEvent("keydown", {
+    if(target.textContent) {
+        var backspaceEvent = new KeyboardEvent("keydown", {
             key: "Backspace",
-            keyCode: 8
+            bubbles: true,
+            cancelable: true,
+            keyCode: 8,
+            which: 8
         });
         Array.from(target.textContent)
              .forEach(function() {
-                target.dispatchEvent(event); 
+            target.dispatchEvent(backspaceEvent);
         });
     }
 }
@@ -216,11 +219,11 @@ function dispatchPaste(target, text) {
     const dataTransfer = new DataTransfer();
     dataTransfer.setData('text/plain', text);
     target.dispatchEvent(
-      new ClipboardEvent('paste', {
+    new ClipboardEvent('paste', {
         clipboardData: dataTransfer,
         bubbles: true,
         cancelable: true
-      })
+    })
     );
     dataTransfer.clearData();
 }

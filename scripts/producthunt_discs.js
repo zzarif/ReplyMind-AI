@@ -20,6 +20,10 @@ document.addEventListener("focusin", (e) => {
             btnComplete.disabled = true;
             btnRegen.disabled = true;
 
+            const txtCount = document.createElement("div");
+            txtCount.className = "replymind-ph-txt";
+            setCountOnView(txtCount);
+
             // button parent conatiner
             const container = document.createElement("div");
             container.className = "replymind-ph-container";
@@ -33,11 +37,12 @@ document.addEventListener("focusin", (e) => {
             container.appendChild(btnQuestion);
             container.appendChild(btnComplete);
             container.appendChild(btnRegen);
+            container.appendChild(txtCount);
             
             viewOnFocus.parentNode.insertAdjacentElement("afterend",container);
             
             viewOnFocus.addEventListener("keyup", (e) => {
-                if (viewOnFocus.textContent) {
+                if (viewOnFocus.textContent && viewOnFocus.textContent.trim()) {
                     btnComplete.disabled = false;
                     btnRegen.disabled = false;
                 } else {
@@ -132,6 +137,7 @@ async function generateComment(viewClicked, type) {
                     });
                     textarea.value = data.comment;
                     textarea.dispatchEvent(inputEvent);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // regenerate comment
@@ -162,6 +168,7 @@ async function generateComment(viewClicked, type) {
                     });
                     textarea.value = data.comment;
                     textarea.dispatchEvent(inputEvent);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // full comment
@@ -191,6 +198,7 @@ async function generateComment(viewClicked, type) {
                     });
                     textarea.value = data.comment;
                     textarea.dispatchEvent(inputEvent);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
         }
@@ -229,6 +237,7 @@ async function generateComment(viewClicked, type) {
                     });
                     textarea.value = data.comment;
                     textarea.dispatchEvent(inputEvent);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // regenerate reply
@@ -261,6 +270,7 @@ async function generateComment(viewClicked, type) {
                     });
                     textarea.value = data.comment;
                     textarea.dispatchEvent(inputEvent);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
             // usual reply
@@ -292,6 +302,7 @@ async function generateComment(viewClicked, type) {
                     });
                     textarea.value = data.comment;
                     textarea.dispatchEvent(inputEvent);
+                    updateCountOnView(viewClicked.parentNode.lastChild);
                 });
             }
         }
@@ -313,4 +324,18 @@ function restoreButtons (viewClicked) {
     const pDiv = viewClicked.parentNode;
     for (i=0; i<pDiv.childElementCount; i++) 
         pDiv.children[i].disabled = false;
+};
+
+function setCountOnView (view) {
+    chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+        if (response.response_code === 200) {
+            view.textContent = `${response.payload}/20`;
+        }
+    });
+};
+
+function updateCountOnView (view) {
+    chrome.runtime.sendMessage({ action: "setData" }, (response) => {
+        setCountOnView(view);
+    });
 };
